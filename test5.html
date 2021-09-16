@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>mesh spli</title>
+
+	<script src="babylon.max.js"></script>
+	
+    <style>
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+if (BABYLON.Engine.isSupported()) {
+    var canvas = document.getElementById("renderCanvas");
+    var engine = new BABYLON.Engine(canvas, true);
+	
+var createScene = function () {
+	var scene = new BABYLON.Scene(engine);
+	//scene.debugLayer.show();
+
+    var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
+	var light1 = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, -1, 0), scene);
+	
+	light.intensity = 0.5;
+	light1.intensity = 0.5;
+    
+	var camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2.2, 5, new BABYLON.Vector3(0, 0, 0), scene);
+	camera.attachControl(canvas, true);
+	  
+	//var g = BABYLON.MeshBuilder.CreateGeodesicSphere("g", {m: 7, n: 2}, scene);
+	var g = BABYLON.MeshBuilder.CreateGoldberg("g", {m: 7, n: 3, updatable: true}, scene);
+	//console.log("univ", g._univSet);
+	
+	console.log("shared", g.nbSharedFaces, "by 12", g.nbSharedFaces / 12);
+	console.log("unshared", g.nbUnsharedFaces);
+	console.log("pole", g.nbFacesAtPole);
+	
+	const root3 = Math.sqrt(3);
+	
+	radius = 1 / 8;
+	let center = new BABYLON.Vector2(3 / 8, 1 / 8);
+	
+	uvset = [];
+	
+	uvset.push([0, g.nbSharedFaces + g.nbUnsharedFaces - 1, center.clone(), radius, 0]);
+	
+	
+/*	center = new BABYLON.Vector2(5 / 8, 3 / 8);
+	uvset.push([12, 12 + g.nbFacesAtPole, center, radius, 0]);
+	
+	center = new BABYLON.Vector2(1 / 8, 5 / 8);
+	uvset.push([12 + g.nbFacesAtPole, 12 + 2 * g.nbFacesAtPole, center, radius, 0]);
+
+*/
+	for (let k = 0; k < 12; k++) {
+		const row = 3 - Math.floor( k / 4);
+		const col = k % 4;
+		center.x = (2 * col + 1) / 8;
+		center.y = (2 * row + 1) / 8;
+		uvset.push([k, k, center.clone(), radius, 0]);
+		//uvset.push([12 + k * g.nbFacesAtPole, 12 + (k + 1) * g.nbFacesAtPole - 1, center.clone(), radius, 0]);
+		uvset.push([g.relFace(k, 0), g.relFace(k, g.nbFacesAtPole), center.clone(), radius, 0]);
+		center.x = 5 / 8;
+		center.y = 5 / 8;
+		uvset.push([g.relFace(0), g.relFace(g.nbSharedFaces), center.clone(), radius, 0]); 
+	} 
+	
+	  
+	g.setFaceUVs(uvset);
+	
+	console.log("UV", g.getVerticesData(BABYLON.VertexBuffer.UVKind));
+	console.log("POS", g.getVerticesData(BABYLON.VertexBuffer.PositionKind));
+	
+	g.setFaceColors([[12, 12 + g.nbFacesAtPole - 1, new BABYLON.Color4(1, 0, 0, 0.3)]]);
+	//g.setFaceColors([[12 + g.nbFacesAtPole, 12 + 2 * g.nbFacesAtPole, new BABYLON.Color4(0, 1, 1, 0.6)]]);
+	
+			
+	
+
+	g.material = new BABYLON.StandardMaterial("");
+	g.material.diffuseTexture = new BABYLON.Texture("https://i.imgur.com/Ro9uFnQ.jpg");
+
+	return scene;
+};
+
+function showNormals(mesh, size, color, sc) {
+    var normals = mesh.getVerticesData(BABYLON.VertexBuffer.NormalKind);
+    var positions = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+    color = color || BABYLON.Color3.White();
+    sc = sc || scene;
+    size = size || 1;
+
+    var lines = [];
+    for (var i = 0; i < 44 * 8; i += 3) {
+        var v1 = BABYLON.Vector3.FromArray(positions, i);
+        var v2 = v1.add(BABYLON.Vector3.FromArray(normals, i).scaleInPlace(size));
+        lines.push([v1.add(mesh.position), v2.add(mesh.position)]);
+    }
+    var normalLines = BABYLON.MeshBuilder.CreateLineSystem("normalLines", {lines: lines}, sc);
+    normalLines.color = color;
+    return normalLines;
+}
+
+
+
+var scene = createScene();
+
+engine.runRenderLoop(function () {
+  scene.render();
+
+});
+
+window.addEventListener("resize", function () {
+    engine.resize();
+});
+        }
+    </script>
+</body>
+</html>

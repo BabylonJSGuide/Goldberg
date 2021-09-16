@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>mesh spli</title>
+
+	<script src="babylon.max.js"></script>
+	
+    <style>
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+if (BABYLON.Engine.isSupported()) {
+    var canvas = document.getElementById("renderCanvas");
+    var engine = new BABYLON.Engine(canvas, true);
+	
+var createScene = function () {
+	var scene = new BABYLON.Scene(engine);
+	//scene.debugLayer.show();
+
+    var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
+    
+	var camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2.2, 5, new BABYLON.Vector3(0, 0, 0), scene);
+	camera.attachControl(canvas, true);
+	  
+	//var g = BABYLON.MeshBuilder.CreateGeodesicSphere("g", {m: 7, n: 2}, scene);
+	var g = BABYLON.MeshBuilder.CreateGoldberg("g", {m: 9, n: 3}, scene);
+	//console.log("univ", g._univSet);
+	
+	console.log("shared", g.nbSharedFaces, "by 12", g.nbSharedFaces / 12);
+	console.log("unshared", g.nbUnsharedFaces);
+	console.log("pole", g.nbFacesAtPole);
+	
+	
+/*	for (let i = 0; i < g._faceSet.length; i++){
+        color = new BABYLON.Color3(Math.random(), Math.random(), Math.random())
+        for (let el of g._faceSet[i]) {
+		//console.log(i, el);
+            sphere = BABYLON.MeshBuilder.CreateSphere("", {diameter: 0.10, segments: 4});
+            sphere.position = BABYLON.Vector3.FromArray(g._netVertex[el]);
+            sphere.material = new BABYLON.StandardMaterial("");
+            sphere.material.diffuseColor = color;
+        }
+    } */
+/*	g.setFaceColors([
+			[0, g.nbSharedFaces + g.nbUnsharedFaces, new BABYLON.Color4(1, 1, 1, 1)],
+			[0, 11, new BABYLON.Color4(1, 0, 0, 1)],
+			[12, 12 + g.nbFacesAtPole, new BABYLON.Color4(0, 1, 0, 1)]
+			
+			]);
+	g.setFaceColors([]);
+	g.setFaceColors([]);
+	g.setFaceColors([[150, 150, new BABYLON.Color4(0, 0, 1, 1)]]); */
+	g.material = new BABYLON.StandardMaterial("");
+	g.material.diffuseTexture = new BABYLON.Texture("https://i.imgur.com/v4jNocU.jpg");
+	//g.material.wireframe = true;
+	//console.log("P", g.nbFacesAtPole)
+	//console.log("axes", g.faceXaxis[16], g.faceYaxis[16], g.faceZaxis[16])
+	
+	
+	//var orientation = BABYLON.Vector3.RotationFromAxis(g.faceXaxis[150], g.faceYaxis[150], g.faceZaxis[150]);
+	//cyl.rotation = orientation;
+	//cyl.position = g.faceCenters[150].add(g.faceYaxis[150].scale(0.6));
+	
+
+	for (let f = 12; f < 12 + g.nbFacesAtPole ; f++) {
+	const cyl = BABYLON.MeshBuilder.CreateBox("", {height: 1, size: 0.015});
+		g.placeOnFaceAt(cyl, f, new BABYLON.Vector3(0, 0.55, 0));
+	} 
+	
+	//showNormals(g, 0.5, BABYLON.Color3.Red());
+	return scene;
+};
+
+function showNormals(mesh, size, color, sc) {
+    var normals = mesh.getVerticesData(BABYLON.VertexBuffer.NormalKind);
+    var positions = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+    color = color || BABYLON.Color3.White();
+    sc = sc || scene;
+    size = size || 1;
+
+    var lines = [];
+    for (var i = 0; i < 44 * 8; i += 3) {
+        var v1 = BABYLON.Vector3.FromArray(positions, i);
+        var v2 = v1.add(BABYLON.Vector3.FromArray(normals, i).scaleInPlace(size));
+        lines.push([v1.add(mesh.position), v2.add(mesh.position)]);
+    }
+    var normalLines = BABYLON.MeshBuilder.CreateLineSystem("normalLines", {lines: lines}, sc);
+    normalLines.color = color;
+    return normalLines;
+}
+
+
+
+var scene = createScene();
+
+engine.runRenderLoop(function () {
+  scene.render();
+
+});
+
+window.addEventListener("resize", function () {
+    engine.resize();
+});
+        }
+    </script>
+</body>
+</html>
