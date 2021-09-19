@@ -51,7 +51,7 @@ var createScene = function () {
 	//console.log("OV", root.metadata.faceXaxis[0]._x);
 	//console.log("veccheck", new BABYLON.Vector3(root.metadata.faceXaxis[0]._x, root.metadata.faceXaxis[0]._y, root.metadata.faceXaxis[0]._z).scale(10));
 	const metadata = root.metadata;
-	const g = BABYLON.Mesh.toGoldberg(root);
+	const g = BABYLON.Mesh.ToGoldberg(root);
 	g.metadata = metadata;
 	g.refreshFaceData();
 	//console.log("meta", g.metadata);
