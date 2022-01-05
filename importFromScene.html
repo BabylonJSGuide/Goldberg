@@ -47,7 +47,7 @@ const createScene = function () {
 	const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2.2, 5, new BABYLON.Vector3(0, 0, 0), scene);
 	camera.attachControl(canvas, true);
 	  
-	BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/BabylonJSGuide/Goldberg/main/", "gbScene.babylon").then((result) =>{
+	BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/BabylonJSGuide/Goldberg", "gbScene.babylon").then((result) =>{
 		const goldberg = result.meshes[0];
 
         console.log(goldberg.goldbergData);
