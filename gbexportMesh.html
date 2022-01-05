@@ -77,10 +77,10 @@ const createScene = function () {
         return goldberg;
     }
 
-    let g = makeGoldberg(m, n);
+    let gmesh = makeGoldberg(m, n);
 	
 	if (confirm('Do you want to download that mesh?')) {
-		doDownload('scene', scene);
+		doDownload('scene', gmesh);
 	} else {
 	    // Do nothing!
 	}
@@ -90,14 +90,14 @@ const createScene = function () {
 };
 
 var objectUrl;
-function doDownload(filename, scene) {
+function doDownload(filename, mesh) {
     if(objectUrl) {
         window.URL.revokeObjectURL(objectUrl);
     }
     
-    var serializedScene = BABYLON.SceneSerializer.Serialize(scene);
+    var serializedMesh = BABYLON.SceneSerializer.SerializeMesh(mesh)
         
-    var strMesh = JSON.stringify(serializedScene);
+    var strMesh = JSON.stringify(serializedMesh);
     
     if (filename.toLowerCase().lastIndexOf(".babylon") !== filename.length - 8 || filename.length < 9){
         filename += ".babylon";
