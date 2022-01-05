@@ -48,11 +48,7 @@ const createScene = function () {
 	camera.attachControl(canvas, true);
 	  
 	BABYLON.SceneLoader.ImportMeshAsync("", "", "goldbergTest.babylon").then((result) =>{
-		const root = result.meshes[0];
-		console.log("root", root);
-		//root.isVisible = false;
-//const 	goldberg = BABYLON.MeshBuilder.CreateGoldberg("g", {m: 7, n: 3});	
-		const goldberg = BABYLON.MeshBuilder.RecreateGoldbergAfterImport(root);
+		const goldberg = result.meshes[0];
 
         for (let f = 12; f < 12 + goldberg.goldbergData.nbFacesAtPole ; f++) {
 			const box = BABYLON.MeshBuilder.CreateBox("", {height: 1, size: 0.015});
